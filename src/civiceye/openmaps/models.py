@@ -15,3 +15,4 @@ class AddressCandidate:
     map_provider: str
     map_image: Optional[bytes]
     similarity: Optional[float] = None
+    map_error: Optional[str] = None

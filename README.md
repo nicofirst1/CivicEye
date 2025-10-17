@@ -4,7 +4,7 @@ CivicEye is a Streamlit application that helps you visually confirm German stree
 
 ### Features
 - **Address discovery** – search OpenStreetMap for every object that matches a PLZ + Hausnummer pair.
-- **Instant maps** – render static OpenStreetMap tiles for each result (no API key required).
+- **Street-level previews** – render Google Street View images when available, falling back to Google Static Maps if necessary.
 - **Visual matching (optional)** – upload a photo and let CLIP similarity scores surface the top matches.
 - **One-click selection** – review candidates in a gallery, pick your choice, and open it directly in Google Maps.
 
@@ -42,7 +42,7 @@ CivicEye is a Streamlit application that helps you visually confirm German stree
    ```bash
    streamlit run main.py
    ```
-   Enter a German ZIP and house number to search. Upload a JPG/PNG if you want similarity scoring.
+   Enter a German ZIP and house number to search. On the first launch, paste your Google Maps Static API key into the prompt (the key is saved in `.streamlit/google_maps_api_key.txt`). Upload a JPG/PNG if you want similarity scoring.
 
 ### Deployment options
 - **Streamlit Community Cloud** – push this repo to GitHub, create a new Streamlit app, and point it at `main.py`.
@@ -58,7 +58,7 @@ python -c "from transformers import CLIPModel, CLIPProcessor; CLIPModel.from_pre
 ### Development hints
 - Streamlit caches API responses (`st.cache_data`) and model loads (`st.cache_resource`). Clear cache with `streamlit run main.py --clear_cache` if you suspect stale data.
 - When adding new modules, keep them in `src/civiceye` to take advantage of the existing package layout.
-- The project uses OpenStreetMap’s free static tiles—no Google API keys to manage.
+- Store your Google Maps Static API key once and it will be reused on subsequent runs; remove `.streamlit/google_maps_api_key.txt` to reset.
 
 ### License
 Released under the MIT License. See [LICENSE](LICENSE) for details.
