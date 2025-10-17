@@ -1,0 +1,1 @@
+"""CLIP-based similarity helpers."""
