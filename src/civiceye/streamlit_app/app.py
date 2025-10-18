@@ -1,14 +1,10 @@
-from typing import List, Optional
+from typing import List
 
 import requests
 import streamlit as st
 
 from ..clip.similarity import compute_similarity_scores
-from ..openmaps.maps import (
-    fetch_map_image_for_location,
-    get_google_maps_api_key,
-    save_google_maps_api_key,
-)
+from ..openmaps.maps import fetch_map_image_for_location, get_google_maps_api_key
 from ..openmaps.models import AddressCandidate
 from ..openmaps.overpass import fetch_addresses
 
@@ -18,7 +14,6 @@ DEFAULT_CARD_WIDTH = 260
 SESSION_RESULTS_KEY = "civiceye_results"
 SESSION_SELECTED_ID_KEY = "civiceye_selected_id"
 SESSION_HAS_SIMILARITY_KEY = "civiceye_has_similarity"
-SESSION_API_KEY_SAVED_FLAG = "civiceye_api_key_saved"
 SESSION_CARD_WIDTH_KEY = "civiceye_card_width"
 
 
@@ -63,7 +58,7 @@ def render_intro(api_key_present: bool) -> None:
         unsafe_allow_html=True,
     )
     if not api_key_present:
-        st.info("Scroll down to connect a Google Maps API key to enable Street View previews.")
+        st.info("Set the `GOOGLE_MAPS_API_KEY` environment variable to enable Street View previews.")
 
 
 def handle_search(
@@ -260,32 +255,11 @@ def display_results() -> None:
     st.link_button("Open in Google Maps", maps_link)
 
 
-def render_api_key_manager() -> Optional[str]:
-    current_key = get_google_maps_api_key()
-    expanded = current_key is None
-
-    with st.expander("Google Maps imagery configuration", expanded=expanded):
-        st.write(
-            "Street View previews require a Google Maps API key. "
-            "Create one in the Google Cloud Console and paste it here."
+def render_api_key_notice(api_key_present: bool) -> None:
+    if not api_key_present:
+        st.warning(
+            "Set the `GOOGLE_MAPS_API_KEY` environment variable to enable Street View previews."
         )
-
-        api_key_input = st.text_input(
-            "Google Maps API key", type="password", key="google_api_key_input"
-        )
-        if st.button("Save API key"):
-            if api_key_input.strip():
-                save_google_maps_api_key(api_key_input.strip())
-                st.session_state[SESSION_API_KEY_SAVED_FLAG] = True
-                st.success("API key saved locally.")
-                st.cache_data.clear()
-            else:
-                st.error("Please enter a valid API key.")
-
-        if current_key:
-            st.caption("A Google Maps API key is already configured.")
-
-    return get_google_maps_api_key()
 
 
 def render_search_form() -> None:
@@ -316,9 +290,9 @@ def render_footer() -> None:
 
 def main() -> None:
     configure_page()
-    current_key = get_google_maps_api_key()
-    render_intro(api_key_present=bool(current_key))
-    api_key_present = render_api_key_manager() is not None
+    api_key_present = bool(get_google_maps_api_key())
+    render_intro(api_key_present)
+    render_api_key_notice(api_key_present)
     render_search_form()
     display_results()
     render_footer()

@@ -1,6 +1,5 @@
 import logging
 import os
-from pathlib import Path
 from typing import Dict, Optional
 
 import requests
@@ -11,7 +10,6 @@ MAP_SIZE = "400x400"
 GOOGLE_STATIC_BASE = "https://maps.googleapis.com/maps/api/staticmap"
 GOOGLE_STREET_VIEW_BASE = "https://maps.googleapis.com/maps/api/streetview"
 GOOGLE_METADATA_BASE = "https://maps.googleapis.com/maps/api/streetview/metadata"
-LOCAL_KEY_PATH = Path(".streamlit/google_maps_api_key.txt")
 
 DEFAULT_HEADERS = {
     "User-Agent": "CivicEye/1.0 (+https://github.com/USERNAME/REPOSITORY)",
@@ -21,24 +19,9 @@ logger = logging.getLogger(__name__)
 
 
 def get_google_maps_api_key() -> Optional[str]:
-    """Load the Google Maps API key from env vars or the local file."""
+    """Load the Google Maps API key from environment variables."""
     env_value = os.getenv("GOOGLE_MAPS_API_KEY")
-    if env_value:
-        return env_value.strip()
-
-    if LOCAL_KEY_PATH.exists():
-        try:
-            return LOCAL_KEY_PATH.read_text(encoding="utf-8").strip()
-        except OSError as exc:  # pragma: no cover - unexpected IO errors
-            logger.warning("Failed to read stored Google Maps API key: %s", exc)
-    return None
-
-
-def save_google_maps_api_key(api_key: str) -> None:
-    """Persist the Google Maps API key so Streamlit sessions can reuse it."""
-    api_key = api_key.strip()
-    LOCAL_KEY_PATH.parent.mkdir(parents=True, exist_ok=True)
-    LOCAL_KEY_PATH.write_text(api_key, encoding="utf-8")
+    return env_value.strip() if env_value else None
 
 
 def _fetch_street_view_metadata(lat: float, lon: float, api_key: str) -> Dict[str, object]:

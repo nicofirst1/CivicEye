@@ -31,3 +31,7 @@ Issues = "https://github.com/USERNAME/REPOSITORY/issues"
 [build-system]
 requires = ["setuptools>=67", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["civiceye"]
