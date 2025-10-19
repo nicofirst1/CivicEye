@@ -1,6 +1,6 @@
 site_name: CivicEye
-site_url: https://example.com
-repo_url: https://github.com/USERNAME/REPOSITORY
+site_url: https://civiceye.streamlit.app/
+repo_url: https://github.com/nicofirst1/CivicEye
 repo_name: GitHub
 nav:
   - Home: index.md
@@ -17,4 +17,4 @@ markdown_extensions:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/USERNAME/REPOSITORY
+      link: https://github.com/nicofirst1/CivicEye

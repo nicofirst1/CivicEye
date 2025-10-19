@@ -1,0 +1,12 @@
+requests>=2.32.0
+streamlit>=1.29.0
+pillow>=11.0.0
+
+# Optional: Visual similarity dependencies
+# sentence-transformers>=3.0.0
+# torch>=2.1.0
+# transformers>=4.37.0
+
+# Optional: Documentation tooling
+# mkdocs>=1.6.0
+# mkdocs-material>=9.5.0

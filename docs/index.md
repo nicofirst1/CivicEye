@@ -10,9 +10,9 @@ CivicEye streamlines the process of validating German civic numbers against Open
 
 ## Quickstart
 ```bash
-uv venv .venv
+python -m venv .venv
 source .venv/bin/activate
-pip install -e .[viz]
+pip install -r requirements.tt
 streamlit run main.py
 ```
 
@@ -29,9 +29,9 @@ src/civiceye/
 `main.py` simply bootstraps the package so `streamlit run main.py` works out of the box.
 
 ## Optional CLIP dependencies
-Install the `viz` extra (or the individual packages) to enable similarity scoring:
+Install the CLIP stack (`torch`, `transformers`, `sentence-transformers`) to enable similarity scoring:
 ```bash
-pip install -e .[viz]
+pip install torch transformers sentence-transformers
 ```
 
 Without these libraries, CivicEye still retrieves addresses and maps—only the ranking feature is disabled.
