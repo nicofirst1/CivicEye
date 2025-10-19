@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 from typing import List
 
 import requests
@@ -15,6 +17,25 @@ SESSION_RESULTS_KEY = "civiceye_results"
 SESSION_SELECTED_ID_KEY = "civiceye_selected_id"
 SESSION_HAS_SIMILARITY_KEY = "civiceye_has_similarity"
 SESSION_CARD_WIDTH_KEY = "civiceye_card_width"
+FOOTER_STYLE_KEY = "civiceye_footer_style"
+_ENV_PATH = Path(__file__).resolve().parents[3] / ".env"
+
+
+def load_env_file() -> None:
+    if not _ENV_PATH.exists():
+        return
+
+    for line in _ENV_PATH.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or "=" not in stripped:
+            continue
+
+        key, value = stripped.split("=", 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+
+        if key and key not in os.environ:
+            os.environ[key] = value
 
 
 def configure_page() -> None:
@@ -119,7 +140,12 @@ def handle_search(
     if uploaded_image:
         progress_bar.progress(80, text="Computing similarity scores…")
         candidates = compute_similarity_scores(uploaded_image, candidates)
-        st.session_state[SESSION_HAS_SIMILARITY_KEY] = True
+        similarity_available = any(
+            candidate.similarity is not None for candidate in candidates
+        )
+        st.session_state[SESSION_HAS_SIMILARITY_KEY] = similarity_available
+        if similarity_available and candidates and candidates[0].similarity is not None:
+            st.session_state[SESSION_SELECTED_ID_KEY] = candidates[0].id
     else:
         st.session_state[SESSION_HAS_SIMILARITY_KEY] = False
 
@@ -140,7 +166,9 @@ def render_card_grid(
     for start in range(0, len(candidates), columns_per_row):
         row_candidates = candidates[start : start + columns_per_row]
         columns = st.columns(len(row_candidates), gap="small")
-        for column, candidate in zip(columns, row_candidates):
+        for column, item in zip(columns, enumerate(row_candidates, start=start)):
+            idx, candidate = item
+            rank = idx + 1
             with column:
                 if candidate.map_image:
                     st.image(candidate.map_image, width=card_width)
@@ -158,7 +186,7 @@ def render_card_grid(
                 st.caption(f"{candidate.lat:.5f}, {candidate.lon:.5f}")
 
                 if candidate.similarity is not None:
-                    st.caption(f"Similarity score: {candidate.similarity:.2f}")
+                    st.caption(f"#{rank} • Similarity {candidate.similarity:.2f}")
 
                 st.button(
                     "Selected" if candidate.id == selected_id else "Select",
@@ -189,12 +217,19 @@ def display_results() -> None:
             "Results are ordered by cosine similarity with the uploaded reference image."
         )
 
-    option_labels = {
-        candidate.id: f"{candidate.street}"
-        + (f", {candidate.city}" if candidate.city else "")
-        for candidate in candidates
-    }
+    option_labels = {}
+    for idx, candidate in enumerate(candidates, start=1):
+        label = f"#{idx} {candidate.street}"
+        if candidate.city:
+            label += f", {candidate.city}"
+        if candidate.similarity is not None:
+            label += f" • sim {candidate.similarity:.2f}"
+        option_labels[candidate.id] = label
+
     option_ids = list(option_labels.keys())
+    if not option_ids:
+        return
+
     default_id = st.session_state.get(SESSION_SELECTED_ID_KEY, option_ids[0])
     index = option_ids.index(default_id) if default_id in option_ids else 0
 
@@ -236,6 +271,8 @@ def display_results() -> None:
     st.write(street_line)
     st.write(f"Coordinates: {selected_candidate.lat:.6f}, {selected_candidate.lon:.6f}")
     st.caption(f"Imagery provider: {selected_candidate.map_provider}")
+    if selected_candidate.similarity is not None:
+        st.caption(f"Similarity score: {selected_candidate.similarity:.2f}")
 
     if not results_capped:
         if selected_candidate.map_image:
@@ -283,10 +320,61 @@ def render_search_form() -> None:
 
 
 def render_footer() -> None:
-    st.caption("Made with curiosity by Nicolo' Brandizzi — https://nicofirst1.github.io/")
+    if not st.session_state.get(FOOTER_STYLE_KEY):
+        st.markdown(
+            """
+            <style>
+                .stApp {
+                    min-height: 100vh;
+                    display: flex;
+                    flex-direction: column;
+                }
+                div[data-testid="stAppViewContainer"] > .main {
+                    flex: 1 0 auto;
+                }
+                footer {
+                    visibility: hidden;
+                }
+                .custom-footer {
+                    flex-shrink: 0;
+                    margin-top: 3rem;
+                    padding: 1.5rem 0 2rem;
+                    text-align: center;
+                    font-size: 0.9rem;
+                    color: var(--text-color, #1F1F24);
+                }
+                .custom-footer hr {
+                    width: min(320px, 80%);
+                    margin: 0 auto 1rem;
+                    height: 1px;
+                    border: none;
+                    background: linear-gradient(90deg, transparent, rgba(106, 13, 131, 0.35), transparent);
+                }
+                .custom-footer a {
+                    color: inherit;
+                    text-decoration: none;
+                    border-bottom: 1px solid rgba(238, 93, 108, 0.45);
+                }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.session_state[FOOTER_STYLE_KEY] = True
+
+    st.markdown(
+        """
+        <div class="custom-footer">
+            <hr />
+            <div>Made with curiosity by <a href="https://nicofirst1.github.io/" target="_blank" rel="noopener noreferrer">Nicolo' Brandizzi</a></div>
+            <div>© Nicolo' Brandizzi</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def main() -> None:
+    load_env_file()
     configure_page()
     api_key_present = bool(get_google_maps_api_key())
     render_intro(api_key_present)

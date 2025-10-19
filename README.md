@@ -14,6 +14,7 @@ You can use use it
 ### Project layout
 ```
 .
+├── .streamlit/config.toml          # Streamlit theme configuration
 ├── main.py                         # Streamlit entry point
 ├── src/civiceye
 │   ├── clip/similarity.py          # CLIP embeddings and cosine similarity helpers
@@ -48,3 +49,6 @@ CLIP similarity requires GPU-friendly dependencies. If the model fails to load, 
 ```bash
 python -c "from transformers import CLIPModel, CLIPProcessor; CLIPModel.from_pretrained('openai/clip-vit-base-patch32'); CLIPProcessor.from_pretrained('openai/clip-vit-base-patch32')"
 ```
+
+### Theme
+The app applies a custom Streamlit theme defined in `.streamlit/config.toml`. Tweak the colors or typography there using Streamlit’s theming options to match your brand.
