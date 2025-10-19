@@ -1,6 +1,3 @@
-# --- Main index (PyPI)
---index-url https://pypi.org/simple
-# --- Add PyTorch CPU wheels as an extra index
 --extra-index-url https://download.pytorch.org/whl/cpu
 
 torch==2.8.0+cpu
