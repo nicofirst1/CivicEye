@@ -1,13 +1,12 @@
---extra-index-url https://download.pytorch.org/whl/cpu
+# --- PyTorch CPU wheels (must come first)
+--index-url https://download.pytorch.org/whl/cpu
+torch==2.2.2+cpu
+torchvision==0.17.2+cpu
+torchaudio==2.2.2+cpu
 
-requests>=2.32.0
+# --- App dependencies
 streamlit>=1.29.0
+requests>=2.32.0
 pillow>=11.0.0
-
-sentence-transformers>=3.0.0+cpu
-torch>=2.1.0+cpu
-transformers>=4.37.0+cpu
-
-# Optional: Documentation tooling
-# mkdocs>=1.6.0
-# mkdocs-material>=9.5.0
+sentence-transformers>=3.0.0
+transformers>=4.37.0
