@@ -57,8 +57,6 @@ def render_intro(api_key_present: bool) -> None:
         """,
         unsafe_allow_html=True,
     )
-    if not api_key_present:
-        st.info("Set the `GOOGLE_MAPS_API_KEY` environment variable to enable Street View previews.")
 
 
 def handle_search(
