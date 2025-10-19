@@ -1,3 +1,6 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+
 requests>=2.32.0
 streamlit>=1.29.0
 pillow>=11.0.0
