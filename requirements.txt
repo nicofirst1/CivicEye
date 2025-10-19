@@ -1,9 +1,8 @@
-# --- PyTorch CPU wheels (must come first)
---extra-index-url  https://download.pytorch.org/whl/cpu
-torch==2.8.0+cpu
-torchvision==0.24.0+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
 
-# --- App dependencies
+torch==2.8.0+cpu
+torchvision==0.23.0+cpu
+torchaudio==2.8.0+cpu
 
 streamlit>=1.29.0
 requests>=2.32.0
